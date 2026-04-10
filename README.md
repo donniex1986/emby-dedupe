@@ -2,13 +2,44 @@
 
 一个自己实现的 Emby 媒体查重 Docker 服务。
 
-当前版本功能：
+它会通过 Emby API 读取电影库数据，按 **片名 + 年份** 分组，找出疑似重复的电影条目，并以网页和 JSON 接口的方式展示结果。
+
+> 当前版本默认 **只查不删**，不会自动删除任何媒体文件。
+
+---
+
+## 功能特性
+
 - 使用 Emby API Key 连接 Emby
 - 读取电影库条目
-- 按“片名 + 年份”分组查找疑似重复电影
-- Web 页面查看结果
+- 按 **片名 + 年份** 进行疑似重复分组
+- 提供 Web 页面查看结果
 - 提供 `/api/duplicates` JSON 接口
-- 默认只查不删
+- 默认只读，不执行删除操作
+- 使用 Docker / Docker Compose 快速部署
+
+---
+
+## 项目截图说明
+
+当前版本页面会显示：
+
+- 总电影数
+- 重复组数
+- 每组重复项目的 Emby ID
+- 每个项目的物理路径
+- 每个项目的 ProviderIds 信息
+
+后续你可以继续扩展为：
+
+- 按 IMDb / TMDb ID 分组
+- 排除 4K / Remux / Director's Cut
+- 导出 CSV
+- 定时扫描
+- 邮件或消息通知
+- 隔离目录移动，而不是直接删除
+
+---
 
 ## 项目结构
 
@@ -23,24 +54,3 @@ emby-dedupe-app/
 ├── README.md
 └── templates/
     └── index.html
-
-环境变量
-	•	 EMBY_URL ：Emby 地址，例如  http://192.168.1.10:8096 
-	•	 EMBY_API_KEY ：Emby API Key
-	•	 EMBY_USER_ID ：可选，留空时直接使用  /emby/Items 
-运行方式
-Docker Compose
-docker compose up -d --build
-启动后访问：
-http://你的服务器IP:5055
-Emby API Key 获取
-在 Emby 管理后台中创建 API Key，然后填入  docker-compose.yml 。
-注意
-当前查重规则是：
-	•	片名相同
-	•	年份相同
-这只是“疑似重复”判断，不会自动删除文件。 后续可继续增强：
-	•	按 IMDb / TMDb ID 分组
-	•	排除 4K、Remux、Director’s Cut
-	•	导出 CSV
-	•	定时扫描
