@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}服务器管理 · Emby Dedupe{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="server-head">
+    <div>
+      <h2 class="panel-title" style="margin-bottom:8px;">Emby 服务器管理</h2>
+      <p class="panel-text">你可以在这里添加、测试、切换和删除 Emby 服务器，不再依赖 docker-compose 写死配置。</p>
+    </div>
+    <div class="server-actions">
+      <a class="btn btn-primary" href="/servers/new">添加服务器</a>
+    </div>
+  </div>
+</section>
+
+{% if servers|length == 0 %}
+<section class="panel">
+  <h2 class="panel-title">还没有服务器</h2>
+  <p class="panel-text">先添加一个 Emby 服务器，再回到查重首页开始扫描。</p>
+</section>
+{% else %}
+<section class="table-like">
+  {% for server in servers %}
+  <article class="server-card">
+    <div class="server-head">
+      <div>
+        <h2 class="server-title">{{ server['name'] }}</h2>
+        <div class="server-meta" style="margin-top:8px;">{{ server['base_url'] }}</div>
+      </div>
+      <div class="pill-row">
+        {% if server['is_active'] %}
+          <span class="badge active">当前使用中</span>
+        {% else %}
+          <span class="pill">未激活</span>
+        {% endif %}
+        {% if server['user_id'] %}<span class="pill">UserId: {{ server['user_id'] }}</span>{% endif %}
+      </div>
+    </div>
+    <div class="server-meta">创建时间：{{ server['created_at'] }} ｜ 更新时间：{{ server['updated_at'] }}</div>
+    <div class="server-actions" style="margin-top:14px;">
+      <form method="post" action="/servers/{{ server['id'] }}/test"><button class="btn">测试连接</button></form>
+      {% if not server['is_active'] %}
+      <form method="post" action="/servers/{{ server['id'] }}/activate"><button class="btn btn-primary">设为当前</button></form>
+      {% endif %}
+      <a class="btn" href="/servers/{{ server['id'] }}/edit">编辑</a>
+      <form method="post" action="/servers/{{ server['id'] }}/delete" onsubmit="return confirm('确定删除这个服务器吗？');"><button class="btn btn-danger">删除</button></form>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

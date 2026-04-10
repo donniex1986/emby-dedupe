@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Emby Dedupe{% endblock %}</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #121933;
+      --panel: rgba(18, 25, 51, 0.72);
+      --panel-strong: #18213f;
+      --border: rgba(255,255,255,0.08);
+      --text: #eef2ff;
+      --muted: #9aa6c4;
+      --primary: #5eead4;
+      --primary-2: #38bdf8;
+      --danger: #fb7185;
+      --warning: #fbbf24;
+      --success: #4ade80;
+      --shadow: 0 20px 60px rgba(0,0,0,0.35);
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(94,234,212,.12), transparent 22%),
+        linear-gradient(180deg, #0b1020 0%, #0d1327 100%);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 20px 60px; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; flex-wrap:wrap; }
+    .brand { font-size:24px; font-weight:800; letter-spacing:-0.03em; }
+    .brand a { color:var(--text); text-decoration:none; }
+    .nav { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      min-height:42px; padding:0 16px; border-radius:999px; text-decoration:none;
+      color:var(--text); border:1px solid var(--border); background:rgba(255,255,255,0.04);
+      backdrop-filter:blur(10px); transition:.2s ease; font-size:14px; cursor:pointer;
+    }
+    .btn:hover { transform:translateY(-1px); border-color:rgba(255,255,255,0.16); background:rgba(255,255,255,0.08); }
+    .btn-primary { background:linear-gradient(135deg, var(--primary), var(--primary-2)); color:#08111f; border:none; font-weight:700; }
+    .btn-danger { background:rgba(251,113,133,.12); border-color:rgba(251,113,133,.3); color:#ffd6df; }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(16px); padding:22px; margin-bottom:18px; }
+    .panel-title { margin:0 0 12px; font-size:18px; font-weight:700; }
+    .panel-text { margin:0; color:var(--muted); line-height:1.7; font-size:14px; }
+    .flash-wrap { display:grid; gap:10px; margin-bottom:18px; }
+    .flash { padding:14px 16px; border-radius:14px; border:1px solid var(--border); }
+    .flash.success { background:rgba(74,222,128,.10); border-color:rgba(74,222,128,.28); }
+    .flash.error { background:rgba(251,113,133,.12); border-color:rgba(251,113,133,.3); }
+    .flash.warning { background:rgba(251,191,36,.12); border-color:rgba(251,191,36,.3); }
+    input[type="text"], input[type="url"], input[type="password"] {
+      width:100%; min-height:46px; border-radius:14px; border:1px solid var(--border);
+      background:rgba(255,255,255,0.04); color:var(--text); padding:0 14px; outline:none;
+    }
+    label { display:block; margin-bottom:8px; font-size:14px; color:var(--muted); }
+    .form-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; }
+    .form-actions { display:flex; gap:12px; flex-wrap:wrap; margin-top:18px; }
+    .help { font-size:13px; color:var(--muted); margin-top:6px; }
+    .table-like { display:grid; gap:14px; }
+    .server-card, .group-card { background:linear-gradient(180deg, rgba(24,33,63,.92), rgba(16,23,45,.88)); border:1px solid var(--border); border-radius:22px; padding:20px; box-shadow:var(--shadow); }
+    .server-head, .group-head { display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:12px; }
+    .server-title, .group-title { margin:0; font-size:22px; letter-spacing:-0.02em; }
+    .server-meta, .item-id { color:var(--muted); font-size:13px; }
+    .badge, .pill {
+      display:inline-flex; align-items:center; min-height:30px; padding:0 10px; border-radius:999px;
+      font-size:12px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.04); color:var(--text);
+    }
+    .badge.active { background:linear-gradient(135deg, var(--primary), var(--primary-2)); color:#08111f; border:none; font-weight:700; }
+    .badge.warn { background:linear-gradient(135deg, var(--warning), #fde68a); color:#08111f; border:none; font-weight:700; }
+    .pill-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .server-actions, .inline-actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .summary-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px; margin-bottom:22px; }
+    .summary-card { background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); backdrop-filter:blur(16px); padding:22px; }
+    .summary-label { font-size:13px; color:var(--muted); margin-bottom:10px; }
+    .summary-value { font-size:clamp(28px, 3vw, 42px); font-weight:800; letter-spacing:-0.03em; }
+    .summary-note { margin-top:8px; color:var(--muted); font-size:13px; }
+    .items { display:grid; gap:12px; }
+    .item { border:1px solid rgba(255,255,255,0.07); background:rgba(255,255,255,0.03); border-radius:16px; padding:16px; }
+    .item-top { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:10px; }
+    .path { margin:0; padding:12px 14px; border-radius:12px; background:rgba(0,0,0,.25); color:#d8def5; font-size:13px; line-height:1.6; word-break:break-all; border:1px solid rgba(255,255,255,0.05); }
+    .checkbox { display:inline-flex; align-items:center; gap:10px; color:var(--text); }
+    .checkbox input { width:18px; height:18px; }
+    @media (max-width:980px) {
+      .summary-grid, .form-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width:640px) {
+      .wrap { padding:18px 14px 40px; }
+      .summary-grid, .form-grid { grid-template-columns:1fr; }
+      .server-title, .group-title { font-size:19px; }
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand"><a href="/">Emby Dedupe</a></div>
+      <div class="nav">
+        <a class="btn" href="/">查重首页</a>
+        <a class="btn" href="/servers">服务器管理</a>
+        <a class="btn" href="/api/duplicates" target="_blank">JSON 接口</a>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-wrap">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

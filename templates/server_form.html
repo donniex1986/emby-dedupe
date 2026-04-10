@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}{% if server %}编辑服务器{% else %}添加服务器{% endif %} · Emby Dedupe{% endblock %}
+{% block content %}
+<section class="panel">
+  <h2 class="panel-title">{% if server %}编辑 Emby 服务器{% else %}添加 Emby 服务器{% endif %}</h2>
+  <p class="panel-text">填写服务器名称、基础地址和 API Key。建议每个外部系统单独使用一个 Emby API Key。</p>
+</section>
+
+<section class="panel">
+  <form method="post">
+    <div class="form-grid">
+      <div>
+        <label for="name">服务器名称</label>
+        <input id="name" name="name" type="text" value="{{ server['name'] if server else '' }}" placeholder="例如：家庭 Emby">
+      </div>
+      <div>
+        <label for="base_url">Emby 地址</label>
+        <input id="base_url" name="base_url" type="url" value="{{ server['base_url'] if server else '' }}" placeholder="例如：http://192.168.1.10:8096">
+      </div>
+      <div>
+        <label for="api_key">API Key</label>
+        <input id="api_key" name="api_key" type="password" value="{{ server['api_key'] if server else '' }}" placeholder="输入 Emby API Key">
+      </div>
+      <div>
+        <label for="user_id">User ID（可选）</label>
+        <input id="user_id" name="user_id" type="text" value="{{ server['user_id'] if server else '' }}" placeholder="留空则直接使用 /emby/Items">
+        <div class="help">如果你的接口读取依赖特定用户上下文，可以填写；第一版可以留空。</div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <label class="checkbox"><input type="checkbox" name="activate" {% if server and server['is_active'] %}checked{% endif %}> 保存后设为当前服务器</label>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">保存服务器</button>
+      <a class="btn" href="/servers">返回列表</a>
+    </div>
+  </form>
+</section>
+
+{% if not server %}
+<section class="panel">
+  <h2 class="panel-title">先测试再保存</h2>
+  <p class="panel-text">下面这个表单不会写入数据库，只会临时测试你填写的 Emby 地址和 API Key 是否可用。</p>
+  <form method="post" action="/setup-test">
+    <div class="form-grid">
+      <div>
+        <label for="test_name">服务器名称</label>
+        <input id="test_name" name="name" type="text" placeholder="例如：家庭 Emby">
+      </div>
+      <div>
+        <label for="test_base_url">Emby 地址</label>
+        <input id="test_base_url" name="base_url" type="url" placeholder="例如：http://192.168.1.10:8096">
+      </div>
+      <div>
+        <label for="test_api_key">API Key</label>
+        <input id="test_api_key" name="api_key" type="password" placeholder="输入 Emby API Key">
+      </div>
+      <div>
+        <label for="test_user_id">User ID（可选）</label>
+        <input id="test_user_id" name="user_id" type="text" placeholder="可留空">
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" type="submit">测试连接</button>
+    </div>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
