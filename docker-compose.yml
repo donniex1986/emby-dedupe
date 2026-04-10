@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  emby-dedupe-app:
+    build: .
+    container_name: emby-dedupe-app
+    ports:
+      - "5055:5000"
+    environment:
+      - EMBY_URL=http://192.168.1.10:8096
+      - EMBY_API_KEY=替换成你的APIKEY
+      - EMBY_USER_ID=
+    restart: unless-stopped
