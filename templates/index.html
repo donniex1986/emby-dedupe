@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>emby-dedupe-app</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 32px;
+      background: #f5f7fb;
+      color: #1f2937;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin-bottom: 8px;
+      font-size: 32px;
+    }
+    .sub {
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.06);
+    }
+    .stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .stat {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 16px 18px;
+      min-width: 180px;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .error {
+      color: #b91c1c;
+      font-weight: 600;
+    }
+    .group-title {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+    .item {
+      border-top: 1px solid #e5e7eb;
+      padding: 12px 0;
+    }
+    .item:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+    .path {
+      color: #4b5563;
+      word-break: break-all;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .meta {
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .empty {
+      color: #6b7280;
+    }
+    code {
+      background: #eef2ff;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Emby 媒体查重</h1>
+    <div class="sub">按片名 + 年份分组，列出疑似重复电影</div>
+
+    <div class="card">
+      {% if error %}
+        <div class="error">错误：{{ error }}</div>
+      {% else %}
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">总电影数</div>
+            <div class="stat-value">{{ total_movies }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">重复组数</div>
+            <div class="stat-value">{{ duplicate_groups }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">JSON 接口</div>
+            <div class="stat-value"><a href="/api/duplicates">/api/duplicates</a></div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if not error and duplicate_groups == 0 %}
+      <div class="card empty">没有发现重复项目，或者你的库目前没有满足规则的重复电影。</div>
+    {% endif %}
+
+    {% for group in duplicates %}
+      <div class="card">
+        <h2 class="group-title">{{ group[0].name }} ({{ group[0].year }})</h2>
+        {% for item in group %}
+          <div class="item">
+            <div><strong>ID：</strong>{{ item.id }}</div>
+            <div class="path"><strong>路径：</strong>{{ item.path or '无路径信息' }}</div>
+            <div class="meta"><strong>ProviderIds：</strong>{{ item.provider_ids }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+</body>
+</html>
